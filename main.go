@@ -1,28 +1,46 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/go-redis/redis/v8"
 )
 
+var ctx = context.Background()
+
 func main() {
-	c, err := redis.Dial("tcp", "127.0.0.1:6379")
-	if err != nil {
-		fmt.Println("Connect to redis error", err)
-		return
-	}
-	defer c.Close()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
-	_, err = c.Do("SET", "mykey", "HelloMAKS")
+	err := rdb.Set(ctx, "key", "valueeer", 0).Err()
 	if err != nil {
-		fmt.Println("redis set failed:", err)
+		panic(err)
 	}
 
-	username, err := redis.String(c.Do("GET", "mykey"))
+	err = rdb.Set(ctx, "key2", "valufdsfeeer", 0).Err()
 	if err != nil {
-		fmt.Println("redis get failed:", err)
+		panic(err)
+	}
+
+	val, err := rdb.Get(ctx, "key").Result()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("key", val)
+
+	val2, err := rdb.Get(ctx, "key2").Result()
+	if err == redis.Nil {
+		fmt.Println("key2 does not exist")
+	} else if err != nil {
+		panic(err)
 	} else {
-		fmt.Printf("Get mykey: %v \n", username)
+		fmt.Println("key2", val2)
 	}
+	// Output: key value
+	// key2 does not exist
+
 }
