@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	err = rdb.Set(ctx, "key2", "valufdsfeeer", 0).Err()
+	err = rdb.Set(ctx, "key2", "73", 0).Err()
 	if err != nil {
 		panic(err)
 	}
